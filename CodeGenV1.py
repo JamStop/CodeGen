@@ -30,4 +30,10 @@ class VenomGen:
     # End basic write functionalities
 
 if __name__ == "__main__":
-    test_gen = VenomGen()
+    v = VenomGen()
+    v.write("for i in Range(5):")
+    v.indent()
+    v.write("print(i)")
+    v.dedent
+
+    print(v.end())
