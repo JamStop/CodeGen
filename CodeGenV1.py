@@ -4,8 +4,6 @@ c Jimmy Yue
 credits to http://effbot.org/zone/python-code-generator.htm for basic write functions
 '''
 
-import string
-
 
 class VenomGen:
     def __init__(self):
@@ -15,17 +13,17 @@ class VenomGen:
 
     # Basic write functionalities
     def end(self):
-        return string.join(self.code, "")
+        return "".join(self.code)
 
     def write(self, string):
-        self.code.append(self.tab * self.level + string)
+        self.code.append(self.tab * self.level + string + "\n")
 
     def indent(self):
         self.level = self.level + 1
 
     def dedent(self):
         if self.level == 0:
-            raise SyntaxError("")
+            raise SyntaxError("Cannot dedent below level 0")
         self.level = self.level - 1
     # End basic write functionalities
 
