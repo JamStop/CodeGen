@@ -37,6 +37,11 @@ class VenomGen:
 
     def block(self):
         return self.tab * self.level
+
+    def start(self, file_name):
+        file = open(file_name + ".py", "r")
+        self.file = file.readlines()
+        file.close()
     # End basic write functionalities
 
     # Custom Syntax functionalities
@@ -44,7 +49,7 @@ class VenomGen:
         return
 
     def write_header(self, header):
-        self.header.append("import venom\nfrom google.appengine.ext import ndb\n\n")
+        self.header.append("import venom\n\n")
         apps = header["apps"]
         for app in apps:
             self.header.append(
@@ -52,14 +57,16 @@ class VenomGen:
             )
         self.header.append("\n")
 
-    # def return(self):
-    #     self.code.append(self.tab )
+    def parse_params(self, py_object):
+        self.code.append(self.tab)
 
 if __name__ == "__main__":
     test_header = {"apps": ["test_app"]}
     test_route = {"route_type": "GET", "route_name": "/serve/"}
 
     v = VenomGen()
+    v.start("test")
+
     v.write_header(test_header)
     v.write_route(test_route)
 
