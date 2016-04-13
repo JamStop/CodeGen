@@ -57,10 +57,11 @@ class VenomGen:
 
 if __name__ == "__main__":
     test_header = {"apps": ["test_app"]}
-    test_route = {}
+    test_route = {"route_type": "GET", "route_name": "/serve/"}
 
     v = VenomGen()
     v.write_header(test_header)
+    v.write_route(test_route)
 
     v.save("test")
     print(v.end())
