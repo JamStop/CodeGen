@@ -4,6 +4,8 @@ c Jimmy Yue
 credits to http://effbot.org/zone/python-code-generator.htm for inspiration
 '''
 
+import json
+
 
 class VenomGen:
     def __init__(self):
@@ -105,38 +107,161 @@ class VenomGen:
 
 if __name__ == "__main__":
     test_header = {"apps": ["test_app"]}
-    test_route = {
+
+    test_route_json = '''
+    {
         "path": "/users/:id",
         "method": "GET",
-        "headers": [
-            {
-                "name": "X-Authorization",
-                "type": "integer"
-            }
-        ],
-        "urlParameters": [
-            {
-                "name": "id",
-                "type": "integer",
-                "required": True
-            }
-        ],
-        "queryParameters": [
-            {
-                "name": "expand",
-                "type": "array",
-                "items": {
-                    "type": "string"
+        "headers": {
+            "nested2": {
+                "type": "Dict",
+                "template": {
+                    "foo": {
+                        "type": "Float",
+                        "attributes": {
+                            "max": null,
+                            "choices": null,
+                            "required": true,
+                            "min": null
+                        }
+                    }
+                },
+                "attributes": {
+                    "required": false
                 }
             }
-        ]
+        },
+        "url": {
+            "type": "Dict",
+            "template": {
+                "email": {
+                    "type": "String",
+                    "attributes": {
+                        "required": true,
+                        "pattern": null,
+                        "min": 2,
+                        "choices": null,
+                        "max": null,
+                        "characters": null
+                    }
+                }
+            }
+        },
+        "query": {
+            "type": "Dict",
+            "template": {
+                "file": {
+                    "type": "Integer",
+                    "attributes": {
+                        "max": null,
+                        "choices": null,
+                        "required": true,
+                        "min": 0
+                    }
+                }
+            }
+        },
+        "body": {
+            "type": "Dict",
+            "template": {
+                "filename": {
+                    "type": "String",
+                    "attributes": {
+                        "required": true,
+                        "pattern": null,
+                        "min": 3,
+                        "choices": null,
+                        "max": 100,
+                        "characters": "abcdefghijklmnop"
+                    }
+                }
+            }
+        }
     }
+    '''
+
+    test_route_dict_representation = {
+        "path": "/users/:id",
+        "method": "GET",
+        "headers": {
+            "nested2": {
+                "type": "Dict",
+                "template": {
+                    "foo": {
+                        "type": "Float",
+                        "attributes": {
+                            "max": None,
+                            "choices": None,
+                            "required": True,
+                            "min": None
+                        }
+                    }
+                },
+                "attributes": {
+                    "required": False
+                }
+            }
+        },
+        "url": {
+            "type": "Dict",
+            "template": {
+                "email": {
+                    "type": "String",
+                    "attributes": {
+                        "required": True,
+                        "pattern": None,
+                        "min": 2,
+                        "choices": None,
+                        "max": None,
+                        "characters": None
+                    }
+                }
+            }
+        },
+        "query": {
+            "type": "Dict",
+            "template": {
+                "file": {
+                    "type": "Integer",
+                    "attributes": {
+                        "max": None,
+                        "choices": None,
+                        "required": True,
+                        "min": 0
+                    }
+                }
+            }
+        },
+        "body": {
+            "type": "Dict",
+            "template": {
+                "filename": {
+                    "type": "String",
+                    "attributes": {
+                        "required": True,
+                        "pattern": None,
+                        "min": 3,
+                        "choices": None,
+                        "max": 100,
+                        "characters": "abcdefghijklmnop"
+                    }
+                }
+            }
+        }
+    }
+
+    json = json.loads(test_route_json)
+    print(json)
+    print('\n')
+    print(test_route_dict_representation)
+
+    assert json == test_route_dict_representation
 
     v = VenomGen()
     v.start("test")
 
     v.write_header(test_header)
-    v.write_route(test_route)
+    v.write_route(json)
 
     v.generate("test")
     print(v.end())
