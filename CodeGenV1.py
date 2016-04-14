@@ -71,12 +71,12 @@ class VenomGen:
         # Adding Options
         for key in keys:
             if key in {"url", "headers", "query"}:
-                route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]) + "})\n"
+                route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]) + "})"
             elif key == "body":
                 # TODO: List functionalities with body
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
 
-        route += "\n"
+        # route += "\n"
         self.code.append(route)
 
     # TODO: Finish up handler creation
