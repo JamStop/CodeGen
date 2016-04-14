@@ -62,10 +62,23 @@ class VenomGen:
     def write_route(self, route_obj):
         route_name = route_obj["path"]
         method = route_obj["method"]
-        keys = route_obj.keys()
+        keys = set(route_obj.keys())
         handler = self.get_handler(route_obj)
 
         route = "app.{}({}, {})".format(method, route_name, handler)
+
+        # Adding Options
+        if "header" in keys:
+            pass
+
+        if "url" in keys:
+            pass
+
+        if "body" in keys:
+            pass
+
+        if "query" in keys:
+            pass
 
         self.code.append(route)
 
