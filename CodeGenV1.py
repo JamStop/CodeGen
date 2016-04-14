@@ -10,6 +10,7 @@ import json
 class VenomGen:
     def __init__(self):
         self.level = 0
+        self.apps = []
         self.header = []
         self.code = []
         self.handlers = []
@@ -65,21 +66,17 @@ class VenomGen:
         keys = set(route_obj.keys())
         handler = self.get_handler(route_obj)
 
-        route = "app.{}({}, {})".format(method, route_name, handler)
+        route = "{}.{}('{}', {})".format(self.apps[0], method, route_name, handler)
 
         # Adding Options
-        if "header" in keys:
-            pass
+        for key in keys:
+            if key in {"url", "headers", "query"}:
+                route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]) + "})\n"
+            elif key == "body":
+                # TODO: List functionalities with body
+                route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
 
-        if "url" in keys:
-            pass
-
-        if "body" in keys:
-            pass
-
-        if "query" in keys:
-            pass
-
+        route += "\n"
         self.code.append(route)
 
     # TODO: Finish up handler creation
@@ -114,6 +111,37 @@ class VenomGen:
             self.header.append(
                 "{} = venom.Application(version=1, debug=True, protocol=venom.Protocols.JSONProtocol)\n".format(app)
             )
+            self.apps.append(app)
 
-    def parse_params(self, py_object):
-        self.code.append(self.tab)
+    def parse_params(self, params):
+        self.indent()
+        result = ""
+        keys = list(params.keys())
+        for i in range(len(keys)):
+            item_name = keys[i]
+            item = params[item_name]
+            item_type = item["type"]
+            item_attributes = self.parse_attributes(item["attributes"])
+
+            result += self.block() + "'{}': venom.Parameters.{}(".format(item_name, item_type)
+            if item_type == "Dict":
+                result += "{{\n{}{}}}, ".format(self.parse_params(item["template"]), self.block())
+            result += "{})".format(item_attributes)
+            if i < len(keys) - 1:
+                result += ","
+            result += "\n"
+        self.dedent()
+        return result
+
+    def parse_attributes(self, attributes):
+        result = ""
+        print(attributes)
+        for key, value in attributes.items():
+            if value is None or (key == "required" and value):
+                continue
+
+            if result != "":
+                result += ", "
+
+            result += "{}={}".format(key, value)
+        return result

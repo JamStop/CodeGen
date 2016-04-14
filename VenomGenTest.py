@@ -49,7 +49,7 @@ if __name__ == "__main__":
                     "max": null,
     				"min": 5
     		    }
-    	    }
+            }
         },
         "body": {
             "type": "Dict",
@@ -90,7 +90,7 @@ if __name__ == "__main__":
                     "attributes": {
                         "min": 2,
                         "required": true,
-                        "pattern": ".*"
+                        "pattern": "'.*'"
                     }
                 }
             }
@@ -108,4 +108,4 @@ if __name__ == "__main__":
     vgen.write_route(parsed_route1)
 
     vgen.generate("test")
-    print(vgen.end())
+    vgen.end()
