@@ -3,6 +3,7 @@ Used for testing of CodeGenV1.py
 '''
 
 import json
+import CodeGenV1
 
 if __name__ == "__main__":
     test_route1 = '''
@@ -98,4 +99,13 @@ if __name__ == "__main__":
     '''
 
     parsed_route1 = json.loads(test_route1)
-    print(parsed_route1)
+    test_header = {"apps": ["test_app"]}
+
+    vgen = CodeGenV1.VenomGen()
+    vgen.start("test")
+
+    vgen.write_header(test_header)
+    vgen.write_route(parsed_route1)
+
+    vgen.generate("test")
+    print(vgen.end())
