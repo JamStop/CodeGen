@@ -6,6 +6,7 @@ credits to http://effbot.org/zone/python-code-generator.htm for inspiration
 
 import json
 import re
+import uuid
 
 # TODO: Randomly generate the GUIDs (ensure unique)
 # TODO: Handle GUID inputs
@@ -86,10 +87,13 @@ class VenomGen:
 
             if line.strip() == "venom.ui(":
                 is_route = True
-            if self.is_guid(line) and is_route:
+            guid = self.is_guid(line)
+            print(guid)
+            if guid and is_route:
                 is_route = False
-                guid = re.sub("[}),]", "", line.strip())
                 self.guids.add(guid)
+
+        print(self.guids)
 
         file.close()
     # End basic write functionalities
@@ -101,7 +105,12 @@ class VenomGen:
         keys = set(route_obj.keys())
         handler = self.get_handler(route_obj)
 
-        route = "{}.{}('{}', {})".format(self.apps[0], method, route_name, handler)
+        guid = None
+        if "ui.guid" in keys and route_obj["ui.guid"] not in {None, ""}:
+            guid = route_obj["ui.guid"]
+
+        route = "venom.ui(\n"
+        route += "{}.{}('{}', {})".format(self.apps[0], method, route_name, handler)
 
         # Adding Options
         for key in keys:
@@ -111,7 +120,9 @@ class VenomGen:
                 # TODO: List functionalities with body
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
 
-        # route += "\n"
+        if guid is None:
+            guid = "'UI.{}'".format(uuid.uuid4())
+        route += ", {})\n".format(guid)
         self.code.append(route)
 
     # TODO: Finish up handler creation
@@ -189,4 +200,7 @@ class VenomGen:
 
     def is_guid(self, line):
         # TODO: Better Regex
-        return re.match("(}?\)?, [0-9]+\))", line)
+        match = re.match("(?:}\))?, '(UI\.[a-zA-Z0-9-]+)'\)", line)
+        if not match:
+            return None
+        return match.groups()[0]

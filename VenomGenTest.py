@@ -10,7 +10,7 @@ if __name__ == "__main__":
     {
         "path": "/users/:id",
         "method": "GET",
-        "ui.guid": "PoopyPants",
+        "ui.guid": "",
         "headers": {
             "X-Authorization": {
                 "type": "Integer",
@@ -96,6 +96,14 @@ if __name__ == "__main__":
                 }
             }
         }
+    }
+    '''
+
+    test_route2 = '''
+    {
+        "path": "/users/:id",
+        "method": "GET",
+        "ui.guid": "1234567"
     }
     '''
 
