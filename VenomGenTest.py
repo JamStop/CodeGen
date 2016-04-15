@@ -10,6 +10,7 @@ if __name__ == "__main__":
     {
         "path": "/users/:id",
         "method": "GET",
+        "ui.guid": "PoopyPants",
         "headers": {
             "X-Authorization": {
                 "type": "Integer",
@@ -90,7 +91,7 @@ if __name__ == "__main__":
                     "attributes": {
                         "min": 2,
                         "required": true,
-                        "pattern": "'.*'"
+                        "pattern": ".*"
                     }
                 }
             }

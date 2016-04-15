@@ -5,6 +5,30 @@ credits to http://effbot.org/zone/python-code-generator.htm for inspiration
 '''
 
 import json
+import re
+
+# TODO: Randomly generate the GUIDs (ensure unique)
+# TODO: Handle GUID inputs
+# TODO: Make list of all existing current GUIDs
+# TODO: when you receive a guid you are making a change
+#       when you don't receive a guid you are adding a new
+#       route. when you receive a guid but it isn't found
+#       default to making a new one (FUCK YOU JIMMY)
+# TODO: Don't forget to breath or blink while coding
+# TODO: pattern without nested string fuckery
+
+"""
+venom.ui(
+app.GET('/thing', Handler)
+, GUID)
+
+or
+
+venom.ui(
+app.GET('/thing', Handler).query({
+  'thing': None
+}), GUID)
+"""
 
 
 class VenomGen:
@@ -15,7 +39,8 @@ class VenomGen:
         self.code = []
         self.handlers = []
         self.tab = "    "
-        self.file = None
+        self.file = []
+        self.guids = set()
 
     # Basic write functionalities
     def end(self):
@@ -37,7 +62,7 @@ class VenomGen:
             # Header Generation
             for line in self.header:
                 file.write(line)
-            file.write("\n")
+            file.write("\n\n")
 
             # Handler Generation
             for handler in self.handlers:
@@ -55,7 +80,17 @@ class VenomGen:
 
     def start(self, file_name):
         file = open(file_name + ".py", "r")
-        self.file = file.readlines()
+        is_route = False
+        for line in file:
+            self.file.append(line)
+
+            if line.strip() == "venom.ui(":
+                is_route = True
+            if self.is_guid(line) and is_route:
+                is_route = False
+                guid = re.sub("[}),]", "", line.strip())
+                self.guids.add(guid)
+
         file.close()
     # End basic write functionalities
 
@@ -98,7 +133,10 @@ class VenomGen:
 
             handler.append("class {}(venom.RequestHandler):\n".format(handler_name))
             self.indent()
-            handler.append(self.block() + "pass")
+            handler.append(self.block() + "def {}(self):\n".format(method.lower()))
+            self.indent()
+            handler.append(self.block() + "pass\n")
+            self.dedent()
             self.dedent()
 
             self.handlers.append((route_name, handler_name, handler))
@@ -143,5 +181,12 @@ class VenomGen:
             if result != "":
                 result += ", "
 
+            if key in {"pattern", "characters"}:
+                value = "'{}'".format(value)
+
             result += "{}={}".format(key, value)
         return result
+
+    def is_guid(self, line):
+        # TODO: Better Regex
+        return re.match("(}?\)?, [0-9]+\))", line)
