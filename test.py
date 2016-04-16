@@ -11,16 +11,16 @@ class Handler0(venom.RequestHandler):
 venom.ui(
 test_app.GET('/users/:id', Handler0).headers({
     'X-Authorization': venom.Parameters.Integer(required=False, min=8)
-}).query({
-    'file': venom.Parameters.Integer(min=1),
-    'email': venom.Parameters.String(min=5)
 }).url({
     'agetype': venom.Parameters.String(choices=['adult', 'child'])
+}).query({
+    'email': venom.Parameters.String(min=5),
+    'file': venom.Parameters.Integer(min=1)
 }).body({
-    'filename': venom.Parameters.String(characters='abcdefghijklmnop', min=3, max=100),
-    'file': venom.Parameters.Integer(min=0),
-    'email': venom.Parameters.String(pattern='.*', min=2),
     'nested': venom.Parameters.Dict({
         'foo': venom.Parameters.Float()
-    }, required=False)
-}), 'UI.244bee07-7f01-4331-ab12-398e3ba4896a')
+    }, required=False),
+    'file': venom.Parameters.Integer(min=0),
+    'email': venom.Parameters.String(min=2, pattern='.*'),
+    'filename': venom.Parameters.String(min=3, max=100, characters='abcdefghijklmnop')
+}), 'UI.f9cd61dc-ce53-4fcd-8143-ff202a0fdf74')

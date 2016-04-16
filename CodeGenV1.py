@@ -85,10 +85,13 @@ class VenomGen:
         for line in file:
             self.file.append(line)
 
+            # Find Handlers
+            # TODO: Handlers
+
+            # Find Routes
             if line.strip() == "venom.ui(":
                 is_route = True
             guid = self.is_guid(line)
-            print(guid)
             if guid and is_route:
                 is_route = False
                 self.guids.add(guid)
@@ -108,6 +111,10 @@ class VenomGen:
         guid = None
         if "ui.guid" in keys and route_obj["ui.guid"] not in {None, ""}:
             guid = route_obj["ui.guid"]
+        if guid is None:
+            while guid not in self.guids:
+                guid = "UI.{}".format(uuid.uuid4())
+                self.guids.add(guid)
 
         route = "venom.ui(\n"
         route += "{}.{}('{}', {})".format(self.apps[0], method, route_name, handler)
@@ -120,9 +127,7 @@ class VenomGen:
                 # TODO: List functionalities with body
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
 
-        if guid is None:
-            guid = "'UI.{}'".format(uuid.uuid4())
-        route += ", {})\n".format(guid)
+        route += ", '{}')\n".format(guid)
         self.code.append(route)
 
     # TODO: Finish up handler creation
@@ -138,7 +143,7 @@ class VenomGen:
                 handler_index = self.handlers.index(item)
                 break
         if handler != []:
-            pass
+            print(handler)
         else:
             handler_name = "Handler{}".format(len(self.handlers))
 

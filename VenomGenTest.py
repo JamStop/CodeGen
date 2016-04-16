@@ -103,7 +103,7 @@ if __name__ == "__main__":
     {
         "path": "/users/:id",
         "method": "GET",
-        "ui.guid": "1234567"
+        "ui.guid": "UI.19e0b52b-546f-4d32-a787-6ad1b757e49d"
     }
     '''
 
