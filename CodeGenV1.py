@@ -132,7 +132,8 @@ class VenomGen:
             elif key == "body":
                 # TODO: List functionalities with body
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
-
+        if len(keys) == 0:
+            route += "\n"
         route += ", '{}')\n".format(guid)
         self.code[guid] = route
 

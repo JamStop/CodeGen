@@ -103,11 +103,12 @@ if __name__ == "__main__":
     {
         "path": "/users/:id",
         "method": "GET",
-        "ui.guid": "UI.19e0b52b-546f-4d32-a787-6ad1b757e49d"
+        "ui.guid": "UI.30f137b6-66e6-4649-b959-75ec03321f3e"
     }
     '''
 
     parsed_route1 = json.loads(test_route1)
+    parsed_route2 = json.loads(test_route2)
     test_header = {"apps": ["test_app"]}
 
     vgen = CodeGenV1.VenomGen()
@@ -115,6 +116,7 @@ if __name__ == "__main__":
 
     vgen.write_header(test_header)
     vgen.write_route(parsed_route1)
+    vgen.write_route(parsed_route2)
 
     vgen.generate("test")
     vgen.end()
