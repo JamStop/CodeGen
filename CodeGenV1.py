@@ -7,6 +7,7 @@ credits to http://effbot.org/zone/python-code-generator.htm for inspiration
 import json
 import re
 import uuid
+from collections import defaultdict
 
 # TODO: Randomly generate the GUIDs (ensure unique)
 # TODO: Handle GUID inputs
@@ -37,7 +38,7 @@ class VenomGen:
         self.level = 0
         self.apps = []
         self.header = []
-        self.code = []
+        self.code = defaultdict(str)
         self.handlers = []
         self.tab = "    "
         self.file = []
@@ -73,8 +74,9 @@ class VenomGen:
             file.write("\n")
 
             # Code Generation (Routes, Models, Etc.)
-            for line in self.code:
+            for line in self.code.values():
                 file.write(line)
+                file.write("\n")
 
     def block(self):
         return self.tab * self.level
@@ -82,6 +84,7 @@ class VenomGen:
     def start(self, file_name):
         file = open(file_name + ".py", "r")
         is_route = False
+        route = ""
         for line in file:
             self.file.append(line)
 
@@ -91,12 +94,15 @@ class VenomGen:
             # Find Routes
             if line.strip() == "venom.ui(":
                 is_route = True
+            if is_route:
+                route += line
             guid = self.is_guid(line)
             if guid and is_route:
                 is_route = False
-                self.guids.add(guid)
+                self.code[guid] = route
+                route = ""
 
-        print(self.guids)
+        print(self.code.keys())
 
         file.close()
     # End basic write functionalities
@@ -112,9 +118,9 @@ class VenomGen:
         if "ui.guid" in keys and route_obj["ui.guid"] not in {None, ""}:
             guid = route_obj["ui.guid"]
         if guid is None:
-            while guid not in self.guids:
+            while guid not in self.code.keys():
                 guid = "UI.{}".format(uuid.uuid4())
-                self.guids.add(guid)
+                self.code[guid] = ""
 
         route = "venom.ui(\n"
         route += "{}.{}('{}', {})".format(self.apps[0], method, route_name, handler)
@@ -128,7 +134,7 @@ class VenomGen:
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
 
         route += ", '{}')\n".format(guid)
-        self.code.append(route)
+        self.code[guid] = route
 
     # TODO: Finish up handler creation
     def get_handler(self, route_obj):
