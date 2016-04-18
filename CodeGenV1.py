@@ -26,36 +26,33 @@ app.GET('/thing', Handler).query({
 """
 
 
-class VenomGen:
+class VenomGen(object):
     def __init__(self):
         self.level = 0
-        self.apps = []
-        self.header = []
-        self.code = defaultdict(str)
+        self.applications = []
+        self.imports = []
+        self.routes = defaultdict(str)
         self.handlers = []
         self.tab = "    "
-        self.file = []
         self.guids = set()
+        # self.file =
 
     # Basic write functionalities
-    def end(self):
-        return "".join(self.code)
-
     def write(self, string):
-        self.code.append(self.block() + string + "\n")
+        self.routes.append(self.block() + string + "\n")
 
-    def indent(self):
-        self.level = self.level + 1
+    def indent(self, degree=1):
+        self.level = self.level + degree
 
-    def dedent(self):
-        if self.level == 0:
+    def dedent(self, degree=1):
+        if self.level - degree < 0:
             raise SyntaxError("Cannot dedent below level 0")
-        self.level = self.level - 1
+        self.level = self.level - degree
 
     def generate(self, file_name):
         with open(file_name + ".py", "w") as file:
             # Header Generation
-            for line in self.header:
+            for line in self.imports:
                 file.write(line)
             file.write("\n\n")
 
@@ -67,7 +64,7 @@ class VenomGen:
             file.write("\n")
 
             # Code Generation (Routes, Models, Etc.)
-            for line in self.code.values():
+            for line in self.routes.values():
                 file.write(line)
                 file.write("\n")
 
@@ -75,59 +72,58 @@ class VenomGen:
         return self.tab * self.level
 
     def start(self, file_name):
-        file = open(file_name + ".py", "r")
-        is_route = False
-        route = ""
-        for line in file:
-            self.file.append(line)
+        # TODO: With syntax
+        with open(file_name + ".py", "r") as file:
+            is_route = False
+            route = ""
+            for line in file:
+                # self.file.append(line)
 
-            # Find Handlers
-            # TODO: Handlers
+                # Find Handlers
+                # TODO: Handlers
 
-            # Find Routes
-            if line.strip() == "venom.ui(":
-                is_route = True
-            if is_route:
-                route += line
-            guid = self.is_guid(line)
-            if guid and is_route:
-                is_route = False
-                self.code[guid] = route
-                route = ""
-
-        file.close()
+                # Find Routes
+                if line.strip() == "venom.ui(":
+                    is_route = True
+                if is_route:
+                    route += line
+                guid = self.is_guid(line)
+                if guid and is_route:
+                    is_route = False
+                    self.routes[guid] = route
+                    route = ""
     # End basic write functionalities
 
     # Custom Syntax functionalities
     def write_route(self, route_obj):
         route_name = route_obj["path"]
+        current_app = self.applications[0]
         method = route_obj["method"]
         keys = set(route_obj.keys())
         handler = self.get_handler(route_obj)
 
         guid = None
-        if "ui.guid" in keys and route_obj["ui.guid"] not in {None, ""}:
+        if "ui.guid" in keys and route_obj["ui.guid"]:
             guid = route_obj["ui.guid"]
         if guid is None:
-            while guid not in self.code.keys():
+            while guid not in self.routes:
                 guid = "UI.{}".format(uuid.uuid4())
-                self.code[guid] = ""
+                self.routes[guid] = ""
 
         route = "venom.ui(\n"
-        route += "{}.{}('{}', {})".format(self.apps[0], method, route_name, handler)
+        route += "{}.{}('{}', {})".format(current_app, method, route_name, handler)
 
         # Adding Options
         for key in keys:
-            if key in {"url", "headers", "query"}:
+            if key in {"url", "headers", "query"} and route_obj[key]:
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]) + "})"
-            elif key == "body":
+            elif key == "body" and route_obj["body"]:
                 # TODO: List functionalities with body
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
-        # TODO: Better option for checking lack of other keys
-        if len(keys) <= 3:
+        if not route_obj["url"] and not route_obj["headers"] and not route_obj["query"] and not route_obj["body"]:
             route += "\n"
         route += ", '{}')\n".format(guid)
-        self.code[guid] = route
+        self.routes[guid] = route
 
     # TODO: Finish up handler creation
     def get_handler(self, route_obj):
@@ -159,13 +155,13 @@ class VenomGen:
             return handler_name
 
     def write_header(self, header):
-        self.header.append("import venom\n\n")
+        self.imports.append("import venom\n\n")
         apps = header["apps"]
         for app in apps:
-            self.header.append(
+            self.imports.append(
                 "{} = venom.Application(version=1, debug=True, protocol=venom.Protocols.JSONProtocol)\n".format(app)
             )
-            self.apps.append(app)
+            self.applications.append(app)
 
     def parse_params(self, params):
         self.indent()
@@ -179,6 +175,7 @@ class VenomGen:
 
             result += self.block() + "'{}': venom.Parameters.{}(".format(item_name, item_type)
             if item_type == "Dict":
+                # TODO: Check for empty attributes
                 result += "{{\n{}{}}}, ".format(self.parse_params(item["template"]), self.block())
             result += "{})".format(item_attributes)
             if i < len(keys) - 1:

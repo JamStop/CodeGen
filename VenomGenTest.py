@@ -83,7 +83,6 @@ if __name__ == "__main__":
                         }
                     },
                     "attributes": {
-                        "required": false
                     }
                 },
                 "email": {
@@ -101,9 +100,17 @@ if __name__ == "__main__":
 
     test_route2 = '''
     {
-        "path": "/users/:id",
+        "path": "/users/:id1",
         "method": "GET",
-        "ui.guid": "UI.30f137b6-66e6-4649-b959-75ec03321f3e"
+        "ui.guid": "UI.30f137b6-66e6-4649-b959-75ec03321f3e",
+        "headers": {
+        },
+        "url": {
+        },
+        "query": {
+        },
+        "body":{
+        }
     }
     '''
 
@@ -119,4 +126,3 @@ if __name__ == "__main__":
     vgen.write_route(parsed_route2)
 
     vgen.generate("test")
-    vgen.end()
