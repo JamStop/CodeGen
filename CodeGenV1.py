@@ -9,15 +9,8 @@ import re
 import uuid
 from collections import defaultdict
 
-# TODO: Randomly generate the GUIDs (ensure unique)
-# TODO: Handle GUID inputs
-# TODO: Make list of all existing current GUIDs
-# TODO: when you receive a guid you are making a change
-#       when you don't receive a guid you are adding a new
-#       route. when you receive a guid but it isn't found
-#       default to making a new one (FUCK YOU JIMMY)
-# TODO: Don't forget to breath or blink while coding
-# TODO: pattern without nested string fuckery
+# TODO: Go over existing code -> Cleanup
+# TODO: Pickle Pickle Pickle
 
 """
 venom.ui(
@@ -102,8 +95,6 @@ class VenomGen:
                 self.code[guid] = route
                 route = ""
 
-        print(self.code.keys())
-
         file.close()
     # End basic write functionalities
 
@@ -151,7 +142,8 @@ class VenomGen:
                 handler_index = self.handlers.index(item)
                 break
         if handler != []:
-            print(handler)
+            # TODO: Use old handler
+            pass
         else:
             handler_name = "Handler{}".format(len(self.handlers))
 
@@ -197,7 +189,6 @@ class VenomGen:
 
     def parse_attributes(self, attributes):
         result = ""
-        print(attributes)
         for key, value in attributes.items():
             if value is None or (key == "required" and value):
                 continue
@@ -212,7 +203,6 @@ class VenomGen:
         return result
 
     def is_guid(self, line):
-        # TODO: Better Regex
         match = re.match("(?:}\))?, '(UI\.[a-zA-Z0-9-]+)'\)", line)
         if not match:
             return None
