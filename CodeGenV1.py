@@ -35,7 +35,7 @@ class VenomGen(object):
         self.handlers = []
         self.tab = "    "
         self.guids = set()
-        # self.file =
+        self.file = []
 
     # Basic write functionalities
     def write(self, string):
@@ -77,7 +77,7 @@ class VenomGen(object):
             is_route = False
             route = ""
             for line in file:
-                # self.file.append(line)
+                self.file.append(line)
 
                 # Find Handlers
                 # TODO: Handlers
@@ -154,9 +154,9 @@ class VenomGen(object):
             self.handlers.append((route_name, handler_name, handler))
             return handler_name
 
-    def write_header(self, header):
+    def write_applications(self, object):
         self.imports.append("import venom\n\n")
-        apps = header["apps"]
+        apps = object["apps"]
         for app in apps:
             self.imports.append(
                 "{} = venom.Application(version=1, debug=True, protocol=venom.Protocols.JSONProtocol)\n".format(app)

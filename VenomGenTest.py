@@ -116,12 +116,12 @@ if __name__ == "__main__":
 
     parsed_route1 = json.loads(test_route1)
     parsed_route2 = json.loads(test_route2)
-    test_header = {"apps": ["test_app"]}
+    test_application = {"apps": ["test_app"]}
 
     vgen = CodeGenV1.VenomGen()
     vgen.start("test")
 
-    vgen.write_header(test_header)
+    vgen.write_header(test_application)
     vgen.write_route(parsed_route1)
     vgen.write_route(parsed_route2)
 
