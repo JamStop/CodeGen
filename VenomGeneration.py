@@ -2,6 +2,9 @@ import CodeGenV1
 from sys import argv
 import json
 
+'''
+Command line is "python3 VenomGeneration {file_path} {route_obj}"
+'''
 if __name__ == "__main__":
     test_application = {"apps": ["test_app"]}
     file_path = argv[0]
