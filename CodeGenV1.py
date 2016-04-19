@@ -84,7 +84,7 @@ class VenomGen(object):
                 # TODO: Handlers
 
                 # Find Routes
-                if line.strip() == "venom.ui(":
+                if self.is_route(line):
                     is_route = True
                 if is_route:
                     route += line
@@ -172,12 +172,16 @@ class VenomGen(object):
             item_name = keys[i]
             item = params[item_name]
             item_type = item["type"]
-            item_attributes = self.parse_attributes(item["attributes"])
+            item_attributes = ""
+            if item["attributes"]:
+                item_attributes = self.parse_attributes(item["attributes"])
 
             result += self.block() + "'{}': venom.Parameters.{}(".format(item_name, item_type)
             if item_type == "Dict":
                 # TODO: Check for empty attributes
-                result += "{{\n{}{}}}, ".format(self.parse_params(item["template"]), self.block())
+                result += "{{\n{}{}}}".format(self.parse_params(item["template"]), self.block())
+                if item_attributes:
+                    result += ", "
             result += "{})".format(item_attributes)
             if i < len(keys) - 1:
                 result += ","
@@ -205,3 +209,12 @@ class VenomGen(object):
         if not match:
             return None
         return match.groups()[0]
+
+    def is_import(self, line):
+        match = re.match("((?:from [a-zA-Z]+ )?(?:import [a-zA-Z]+))", line)
+        if not match:
+            return None
+        return match.groups()[0]
+
+    def is_route(self, line):
+        return line.strip() == "venom.ui("

@@ -22,14 +22,14 @@ test_app.GET('/users/:id', Handler0).url({
 }).query({
     'file': venom.Parameters.Integer(min=1),
     'email': venom.Parameters.String(min=5)
+}).headers({
+    'X-Authorization': venom.Parameters.Integer(min=8, required=False)
 }).body({
-    'file': venom.Parameters.Integer(min=0),
-    'email': venom.Parameters.String(pattern='.*', min=2),
     'nested': venom.Parameters.Dict({
         'foo': venom.Parameters.Float()
-    }, ),
-    'filename': venom.Parameters.String(max=100, characters='abcdefghijklmnop', min=3)
-}).headers({
-    'X-Authorization': venom.Parameters.Integer(required=False, min=8)
-}), 'UI.66a33fc3-1da6-4fe7-8162-907f45b13f82')
+    }),
+    'email': venom.Parameters.String(pattern='.*', min=2),
+    'file': venom.Parameters.Integer(min=0),
+    'filename': venom.Parameters.String(max=100, min=3, characters='abcdefghijklmnop')
+}), 'UI.1e01b2dc-e640-495b-8d8c-1c3d1bf0e0a3')
 
