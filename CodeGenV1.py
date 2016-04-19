@@ -12,6 +12,11 @@ from collections import defaultdict
 
 # TODO: Go over existing code -> Cleanup
 # TODO: Pickle Pickle Pickle
+# TODO: Better tracking of what's been changed and what hasn't
+
+# TODO: Code gen/regen, can actually do a mix of methodology. Biggest problem in my head is the dependency
+#       between the route gen and the handler gen. Current idea: regenerate handlers all the time
+
 
 """
 venom.ui(
@@ -30,7 +35,7 @@ app.GET('/thing', Handler).query({
 class VenomGen(object):
     def __init__(self):
         self.level = 0
-        self.applications = []
+        self.applications = defaultdict(str)
         self.imports = []
         self.routes = defaultdict(str)
         self.handlers = []
@@ -52,10 +57,17 @@ class VenomGen(object):
 
     def generate(self, file_name):
         with open(file_name + ".py", "w") as file:
-            # Header Generation
+            # for line_number in range(len(self.file)):
+                # line = self.file[line_number]
+                # Header Generation
             for line in self.imports:
                 file.write(line)
+                self.is_application(line)
             file.write("\n\n")
+
+            for app in self.applications.values():
+                file.write(app + "\n")
+            file.write("\n")
 
             # Handler Generation
             for handler in self.handlers:
@@ -84,7 +96,7 @@ class VenomGen(object):
                 # TODO: Handlers
 
                 # Find Routes
-                if line.strip() == "venom.ui(":
+                if self.is_route(line):
                     is_route = True
                 if is_route:
                     route += line
@@ -98,7 +110,8 @@ class VenomGen(object):
     # Custom Syntax functionalities
     def write_route(self, route_obj):
         route_name = route_obj["path"]
-        current_app = self.applications[0]
+        # TODO: Application generation so this inefficient approach isn't used anymore
+        current_app = next(iter(self.applications.keys()))
         method = route_obj["method"]
         keys = set(route_obj.keys())
         handler = self.get_handler(route_obj)
@@ -156,13 +169,11 @@ class VenomGen(object):
             return handler_name
 
     def write_applications(self, object):
-        self.imports.append("import venom\n\n")
+        self.imports.append("import venom\n")
         apps = object["apps"]
         for app in apps:
-            self.imports.append(
+            self.applications[app] = \
                 "{} = venom.Application(version=1, debug=True, protocol=venom.Protocols.JSONProtocol)\n".format(app)
-            )
-            self.applications.append(app)
 
     def parse_params(self, params):
         self.indent()
@@ -172,12 +183,16 @@ class VenomGen(object):
             item_name = keys[i]
             item = params[item_name]
             item_type = item["type"]
-            item_attributes = self.parse_attributes(item["attributes"])
+            item_attributes = ""
+            if item["attributes"]:
+                item_attributes = self.parse_attributes(item["attributes"])
 
             result += self.block() + "'{}': venom.Parameters.{}(".format(item_name, item_type)
             if item_type == "Dict":
                 # TODO: Check for empty attributes
-                result += "{{\n{}{}}}, ".format(self.parse_params(item["template"]), self.block())
+                result += "{{\n{}{}}}".format(self.parse_params(item["template"]), self.block())
+                if item_attributes:
+                    result += ", "
             result += "{})".format(item_attributes)
             if i < len(keys) - 1:
                 result += ","
@@ -202,6 +217,26 @@ class VenomGen(object):
 
     def is_guid(self, line):
         match = re.match("(?:}\))?, '(UI\.[a-zA-Z0-9-]+)'\)", line)
+        if not match:
+            return None
+        return match.groups()[0]
+
+    def is_import(self, line):
+        match = re.match("((?:from [a-zA-Z]+ )?(?:import [a-zA-Z]+))", line)
+        if not match:
+            return None
+        return match.groups()[0]
+
+    def is_route(self, line):
+        return line.strip() == "venom.ui("
+
+    def is_application(self, line):
+        regex = (
+            "([a-zA-Z]+ = venom\.Application\(version=[0-9]+, "
+            "debug=(?:(?:True)|(?:False)), protocol=venom.Protocols.JSONProtocol\))"
+            )
+        match = \
+            re.match(regex, line)
         if not match:
             return None
         return match.groups()[0]
