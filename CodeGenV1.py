@@ -12,6 +12,11 @@ from collections import defaultdict
 
 # TODO: Go over existing code -> Cleanup
 # TODO: Pickle Pickle Pickle
+# TODO: Better tracking of what's been changed and what hasn't
+
+# TODO: Code gen/regen, can actually do a mix of methodology. Biggest problem in my head is the dependency
+#       between the route gen and the handler gen. Current idea: regenerate handlers all the time
+
 
 """
 venom.ui(
@@ -30,7 +35,7 @@ app.GET('/thing', Handler).query({
 class VenomGen(object):
     def __init__(self):
         self.level = 0
-        self.applications = []
+        self.applications = defaultdict(str)
         self.imports = []
         self.routes = defaultdict(str)
         self.handlers = []
@@ -52,10 +57,17 @@ class VenomGen(object):
 
     def generate(self, file_name):
         with open(file_name + ".py", "w") as file:
-            # Header Generation
+            # for line_number in range(len(self.file)):
+                # line = self.file[line_number]
+                # Header Generation
             for line in self.imports:
                 file.write(line)
+                self.is_application(line)
             file.write("\n\n")
+
+            for app in self.applications.values():
+                file.write(app + "\n")
+            file.write("\n")
 
             # Handler Generation
             for handler in self.handlers:
@@ -98,7 +110,8 @@ class VenomGen(object):
     # Custom Syntax functionalities
     def write_route(self, route_obj):
         route_name = route_obj["path"]
-        current_app = self.applications[0]
+        # TODO: Application generation so this inefficient approach isn't used anymore
+        current_app = next(iter(self.applications.keys()))
         method = route_obj["method"]
         keys = set(route_obj.keys())
         handler = self.get_handler(route_obj)
@@ -156,13 +169,11 @@ class VenomGen(object):
             return handler_name
 
     def write_applications(self, object):
-        self.imports.append("import venom\n\n")
+        self.imports.append("import venom\n")
         apps = object["apps"]
         for app in apps:
-            self.imports.append(
+            self.applications[app] = \
                 "{} = venom.Application(version=1, debug=True, protocol=venom.Protocols.JSONProtocol)\n".format(app)
-            )
-            self.applications.append(app)
 
     def parse_params(self, params):
         self.indent()
@@ -218,3 +229,14 @@ class VenomGen(object):
 
     def is_route(self, line):
         return line.strip() == "venom.ui("
+
+    def is_application(self, line):
+        regex = (
+            "([a-zA-Z]+ = venom\.Application\(version=[0-9]+, "
+            "debug=(?:(?:True)|(?:False)), protocol=venom.Protocols.JSONProtocol\))"
+            )
+        match = \
+            re.match(regex, line)
+        if not match:
+            return None
+        return match.groups()[0]
