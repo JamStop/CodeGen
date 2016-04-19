@@ -7,6 +7,7 @@ credits to http://effbot.org/zone/python-code-generator.htm for inspiration
 import json
 import re
 import uuid
+import os
 from collections import defaultdict
 
 # TODO: Go over existing code -> Cleanup
@@ -72,7 +73,7 @@ class VenomGen(object):
         return self.tab * self.level
 
     def start(self, file_name):
-        # TODO: With syntax
+        os.system("touch {}.py".format(file_name))
         with open(file_name + ".py", "r") as file:
             is_route = False
             route = ""
