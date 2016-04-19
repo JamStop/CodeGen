@@ -121,7 +121,7 @@ if __name__ == "__main__":
     vgen = CodeGenV1.VenomGen()
     vgen.start("test")
 
-    vgen.write_header(test_application)
+    vgen.write_applications(test_application)
     vgen.write_route(parsed_route1)
     vgen.write_route(parsed_route2)
 
