@@ -69,13 +69,12 @@ class VenomGen(object):
                     self.file[index] = content
                 else:
                     self.file.append(content)
-
             for line in self.file:
                 file.write(line)
 
             # for line_number in range(len(self.file)):
-                # line = self.file[line_number]
-                # Header Generation
+            #     line = self.file[line_number]
+            # # Header Generation
             # for line in self.imports:
             #     file.write(line)
             #     self.is_application(line)
@@ -108,7 +107,6 @@ class VenomGen(object):
             route = ""
             index = 0
             for line in file:
-
                 # Find Handlers
                 # if self.is_handler()
 
@@ -121,6 +119,7 @@ class VenomGen(object):
                     if guid:
                         is_route = False
                         self.routes[guid] = Codeblock(content=route, index=index)
+                        self.file.append(route)
                         route = ""
                         index += 1
                 else:
@@ -144,10 +143,11 @@ class VenomGen(object):
             if guid in self.routes:
                 new_route = self.routes[guid]
         elif guid is None:
+            guid = "UI.{}".format(uuid.uuid4())
             while guid in self.routes:
                 guid = "UI.{}".format(uuid.uuid4())
 
-        route = "venom.ui(\n"
+        route = "\nvenom.ui(\n"
         route += "{}.{}('{}', {})".format(current_app, method, route_name, handler)
 
         # Adding Options
@@ -159,7 +159,7 @@ class VenomGen(object):
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
         if not route_obj["url"] and not route_obj["headers"] and not route_obj["query"] and not route_obj["body"]:
             route += "\n"
-        route += ", '{}')\n\n".format(guid)
+        route += ", '{}')\n".format(guid)
         new_route = new_route._replace(content=route)
         self.changes.append(new_route)
 

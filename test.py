@@ -11,3 +11,24 @@ class Handler0(venom.RequestHandler):
 class Handler1(venom.RequestHandler):
     def get(self):
         pass
+
+venom.ui(
+test_app.GET('/users/:id', Handler0).headers({
+    'X-Authorization': venom.Parameters.Integer(required=False, min=8)
+}).body({
+    'filename': venom.Parameters.String(min=3, max=100, characters='abcdefghijklmnop'),
+    'email': venom.Parameters.String(pattern='.*', min=2),
+    'file': venom.Parameters.Integer(min=0),
+    'nested': venom.Parameters.Dict({
+        'foo': venom.Parameters.Float()
+    })
+}).query({
+    'file': venom.Parameters.Integer(min=1),
+    'email': venom.Parameters.String(min=5)
+}).url({
+    'agetype': venom.Parameters.String(choices=['adult', 'child'])
+}), 'UI.1222adbe-3630-4e3f-b3b3-73bbcbe355ba')
+
+venom.ui(
+test_app.GET('/users/:id1', Handler1)
+, 'UI.30f137b6-66e6-4649-b959-75ec03321f3e')
