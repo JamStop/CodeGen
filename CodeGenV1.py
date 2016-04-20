@@ -13,7 +13,6 @@ from collections import namedtuple
 
 # TODO: Go over existing code -> Cleanup
 # TODO: Pickle Pickle Pickle
-# TODO: Better tracking of what's been changed and what hasn't
 
 # TODO: Code gen/regen, can actually do a mix of methodology. Biggest problem in my head is the dependency
 #       between the route gen and the handler gen. Current idea: regenerate handlers all the time
