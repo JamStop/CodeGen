@@ -33,15 +33,15 @@ app.GET('/thing', Handler).query({
 """
 
 
-Route = namedtuple('Route', 'content, index')
+Codeblock = namedtuple('Codeblock', 'content, index')
 
 
 class VenomGen(object):
     def __init__(self):
         self.level = 0
-        self.applications = defaultdict(Route)
+        self.applications = defaultdict(Codeblock)
         self.imports = []
-        self.routes = defaultdict(Route)
+        self.routes = defaultdict(Codeblock)
         self.handlers = []
         self.tab = "    "
         self.guids = set()
@@ -62,29 +62,40 @@ class VenomGen(object):
 
     def generate(self, file_name):
         with open(file_name + ".py", "w") as file:
+            for change in self.changes:
+                index = change.index
+                content = change.content
+                if index:
+                    self.file[index] = content
+                else:
+                    self.file.append(content)
+
+            for line in self.file:
+                file.write(line)
+
             # for line_number in range(len(self.file)):
                 # line = self.file[line_number]
                 # Header Generation
-            for line in self.imports:
-                file.write(line)
-                self.is_application(line)
-            file.write("\n\n")
-
-            for app in self.applications.values():
-                file.write(app + "\n")
-            file.write("\n")
-
-            # Handler Generation
-            for handler in self.handlers:
-                for line in handler[2]:
-                    file.write(line)
-                file.write("\n")
-            file.write("\n")
-
-            # Code Generation (Routes, Models, Etc.)
-            for route in self.routes.values():
-                file.write(route.content)
-                file.write("\n")
+            # for line in self.imports:
+            #     file.write(line)
+            #     self.is_application(line)
+            # file.write("\n\n")
+            #
+            # for app in self.applications.values():
+            #     file.write(app + "\n")
+            # file.write("\n")
+            #
+            # # Handler Generation
+            # for handler in self.handlers:
+            #     for line in handler[2]:
+            #         file.write(line)
+            #     file.write("\n")
+            # file.write("\n")
+            #
+            # # Code Generation (Codeblocks, Models, Etc.)
+            # for route in self.routes.values():
+            #     file.write(route.content)
+            #     file.write("\n")
 
     def block(self):
         return self.tab * self.level
@@ -101,7 +112,7 @@ class VenomGen(object):
                 # Find Handlers
                 # if self.is_handler()
 
-                # Find Routes
+                # Find Codeblocks
                 if self.is_route(line):
                     is_route = True
                 if is_route:
@@ -109,7 +120,7 @@ class VenomGen(object):
                     guid = self.is_guid(line)
                     if guid:
                         is_route = False
-                        self.routes[guid] = Route(content=route, index=index)
+                        self.routes[guid] = Codeblock(content=route, index=index)
                         route = ""
                         index += 1
                 else:
@@ -125,17 +136,16 @@ class VenomGen(object):
         method = route_obj["method"]
         keys = set(route_obj.keys())
         handler = self.get_handler(route_obj)
-        new_route = Route(content="", index=None)
+        new_route = Codeblock(content="", index=None)
 
         guid = None
         if "ui.guid" in keys and route_obj["ui.guid"]:
             guid = route_obj["ui.guid"]
-            if guid not in self.routes:
-                self.routes[guid] = Route(content="", index=None)
-        if guid is None:
-            while guid not in self.routes:
+            if guid in self.routes:
+                new_route = self.routes[guid]
+        elif guid is None:
+            while guid in self.routes:
                 guid = "UI.{}".format(uuid.uuid4())
-                self.routes[guid] = Route(content="", index=None)
 
         route = "venom.ui(\n"
         route += "{}.{}('{}', {})".format(current_app, method, route_name, handler)
@@ -149,10 +159,9 @@ class VenomGen(object):
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
         if not route_obj["url"] and not route_obj["headers"] and not route_obj["query"] and not route_obj["body"]:
             route += "\n"
-        route += ", '{}')\n".format(guid)
-        item = self.routes[guid]
-        item = item._replace(content=route)
-        self.routes[guid] = item
+        route += ", '{}')\n\n".format(guid)
+        new_route = new_route._replace(content=route)
+        self.changes.append(new_route)
 
     # TODO: Finish up handler creation
     def get_handler(self, route_obj):
