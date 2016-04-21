@@ -34,10 +34,3 @@ class VenomGen(object):
     def _generate_route(self, gen_object):
         route_gen = VenomRouteGen.VenomRouteGen()
         self.generated_route = route_gen.generate(gen_object)
-
-if __name__ == "__main__":
-    test = VenomGen()
-    test.generate('''{
-    "routes": {
-    }
-    }''')

@@ -56,7 +56,6 @@ class VenomRouteGen(CodeGenerator.Generator):
                 new_file.append(line)
                 newline_count = 0
                 state = 'IMPORT'
-                print("import")
             # TODO: Maybe throw an error if guids are improperly placed
             elif self.is_route(line):
                 if state == 'ROUTE':
@@ -67,7 +66,6 @@ class VenomRouteGen(CodeGenerator.Generator):
                 new_file.append(line)
                 newline_count = 0
                 state = 'ROUTE'
-                print("route")
             elif line != "\n":
                 if state != 'OTHER' and state is not None:
                     new_lines = 2 - newline_count
@@ -75,12 +73,10 @@ class VenomRouteGen(CodeGenerator.Generator):
                 new_file.append(line)
                 newline_count = 0
                 state = 'OTHER'
-                print("other")
             if state == 'OTHER' and line == "\n" and newline_count <= 2:
                 new_file.append(line)
                 newline_count += 1
         self.file = new_file
-
 
     def load_routes(self, file_path):
         os.system("touch {}".format(file_path))
