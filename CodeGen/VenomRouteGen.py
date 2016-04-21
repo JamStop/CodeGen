@@ -12,7 +12,6 @@ from CodeGen import CodeGenerator
 
 
 Route = namedtuple('Route', 'content, index')
-newline_states = frozenset('SINGLE', 'DOUBLE', 'ROUTE', 'IMPORT', 'OTHER')
 
 
 class VenomRouteGen(CodeGenerator.Generator):
@@ -50,7 +49,37 @@ class VenomRouteGen(CodeGenerator.Generator):
         newline_count = 0
         new_file = []
         for line in self.file:
-            if state = 'SINGLE':
+            if self.is_import(line):
+                if state != 'IMPORT' and state is not None:
+                    new_lines = 2 - newline_count
+                    new_file.append("\n" * new_lines)
+                new_file.append(line)
+                newline_count = 0
+                state = 'IMPORT'
+                print("import")
+            # TODO: Maybe throw an error if guids are improperly placed
+            elif self.is_route(line):
+                if state == 'ROUTE':
+                    new_file.append("\n")
+                elif state != 'ROUTE' and state is not None:
+                    new_lines = 2 - newline_count
+                    new_file.append("\n" * new_lines)
+                new_file.append(line)
+                newline_count = 0
+                state = 'ROUTE'
+                print("route")
+            elif line != "\n":
+                if state != 'OTHER' and state is not None:
+                    new_lines = 2 - newline_count
+                    new_file.append("\n" * new_lines)
+                new_file.append(line)
+                newline_count = 0
+                state = 'OTHER'
+                print("other")
+            if state == 'OTHER' and line == "\n" and newline_count <= 2:
+                new_file.append(line)
+                newline_count += 1
+        self.file = new_file
 
 
     def load_routes(self, file_path):
@@ -176,4 +205,5 @@ class VenomRouteGen(CodeGenerator.Generator):
         return match.groups()[0]
 
     def is_route(self, line):
-        return line.strip() == "venom.ui("
+        stripped_line = line.strip()
+        return stripped_line[:9] == "venom.ui("
