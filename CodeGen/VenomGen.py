@@ -6,29 +6,35 @@ This class accepts the metaobject from the Venom IDE,
 and conducts the generation process.
 '''
 
-import VenomRouteGen
+from CodeGen import VenomRouteGen
 from sys import argv
 import json
 
 
 class VenomGen(object):
     def __init__(self):
-        self.route_files = []
+        self.generated_route = None
 
     def generate(self, metaobject):
         meta = json.loads(metaobject)
         for key in meta:
             gen_object = meta[key]
-            # if not gen_object:
-            #     continue
+            if not gen_object:
+                continue
 
             if key == "routes":
                 self._generate_route(gen_object)
 
+        if self.generated_route:
+            route_file, file_path = self.generated_route[0], self.generated_route[1]
+            with open(file_path, "w") as file:
+                for line in route_file:
+                    file.write(line)
+
     def _generate_route(self, gen_object):
         route_gen = VenomRouteGen.VenomRouteGen()
-        self.route_files = route_gen.generate(gen_object)
-        print(self.route_files)
+        self.generated_route = route_gen.generate(gen_object)
+        print(self.generated_route)
 
 if __name__ == "__main__":
     test = VenomGen()
