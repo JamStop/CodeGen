@@ -36,6 +36,9 @@ class VenomRouteGen(CodeGenerator.Generator):
 
     def update_file(self):
         # Make changes
+        if "import venom\n" not in self.imports:
+            # TODO: Better import handling
+            self.file.insert(0, "import venom\n")
         for route in self.changed_routes:
             index = route.index
             content = route.content
