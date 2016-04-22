@@ -23,6 +23,7 @@ class VenomRouteGen(CodeGenerator.Generator):
         self.changed_routes = []
         self.guids = set()
         self.file = []
+        self.apps = []
 
     def generate(self, route_objects):
         self.load_routes(route_objects["filePath"])
@@ -97,6 +98,11 @@ class VenomRouteGen(CodeGenerator.Generator):
                     index += 1
                     continue
 
+                # Find apps
+                app = self.is_application(line)
+                if app:
+                    self.apps.append(app)
+
                 # Find routes
                 if self.is_route(line):
                     is_route = True
@@ -131,7 +137,10 @@ class VenomRouteGen(CodeGenerator.Generator):
             new_route = self.routes[guid]
 
         route = "venom.ui(\n"
-        route += "{}.{}('{}', {})".format(current_app, method, route_name, handler)
+        # TODO: Apps
+        if not self.apps:
+            self.apps.append("NO_VALID_APP_FOUND")
+        route += "{}.{}('{}', {})".format(self.apps[-1], method, route_name, handler)
 
         # Adding Options
         for key in keys:
@@ -208,3 +217,14 @@ class VenomRouteGen(CodeGenerator.Generator):
     def is_route(self, line):
         stripped_line = line.strip()
         return stripped_line[:9] == "venom.ui("
+
+    def is_application(self, line):
+        regex = (
+            "([a-zA-Z]+) = venom\.Application\(version=[0-9]+, "
+            "debug=(?:(?:True)|(?:False)), protocol=venom.Protocols.JSONProtocol\)"
+            )
+        match = \
+            re.match(regex, line)
+        if not match:
+            return None
+        return match.groups()[0]
