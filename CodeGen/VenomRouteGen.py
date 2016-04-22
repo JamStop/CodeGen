@@ -103,10 +103,10 @@ class VenomRouteGen(CodeGenerator.Generator):
                 if is_route:
                     route += line
                     guid = self.is_guid(line)
-                    if guid:
-                        print("hit")
+                    if guid or line == "\n":
                         is_route = False
-                        self.routes[guid] = Route(content=route, index=index)
+                        if guid:
+                            self.routes[guid] = Route(content=route, index=index)
                         self.file.append(route)
                         route = ""
                         index += 1
