@@ -9,7 +9,7 @@ if __name__ == "__main__":
     {
         "routes": {
             "filePath": "test.py",
-            "UI.1234": {
+            "ui-1234": {
                 "path": "/users/:id",
                 "method": "GET",
                 "handler": "UserHandler",
@@ -99,7 +99,7 @@ if __name__ == "__main__":
                     }
                 }
             },
-            "UI.2345": {
+            "ui-2345": {
                 "path": "/users/:id1",
                 "method": "GET",
                 "handler": "UserHandler",

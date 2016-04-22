@@ -36,6 +36,9 @@ class VenomRouteGen(CodeGenerator.Generator):
 
     def update_file(self):
         # Make changes
+        if "import venom\n" not in self.imports:
+            # TODO: Better import handling
+            self.file.insert(0, "import venom\n")
         for route in self.changed_routes:
             index = route.index
             content = route.content
@@ -101,6 +104,7 @@ class VenomRouteGen(CodeGenerator.Generator):
                     route += line
                     guid = self.is_guid(line)
                     if guid:
+                        print("hit")
                         is_route = False
                         self.routes[guid] = Route(content=route, index=index)
                         self.file.append(route)
@@ -110,6 +114,7 @@ class VenomRouteGen(CodeGenerator.Generator):
 
                 self.file.append(line)
                 index += 1
+            # print(self.file)
 
     def write_route(self, route_obj, guid):
         route_name = route_obj["path"]
@@ -189,7 +194,7 @@ class VenomRouteGen(CodeGenerator.Generator):
     '''
 
     def is_guid(self, line):
-        match = re.match("(?:}\))?, '(UI\.[a-zA-Z0-9-]+)'\)", line)
+        match = re.match("(?:}\))?, '(ui-[a-zA-Z0-9-]+)'\)", line)
         if not match:
             return None
         return match.groups()[0]
