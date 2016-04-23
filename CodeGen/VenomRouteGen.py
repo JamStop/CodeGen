@@ -222,7 +222,7 @@ class VenomRouteGen(CodeGenerator.Generator):
         regex = (
             # "([a-zA-Z]+) = venom\.Application\(version=[0-9]+, "
             # "debug=(?:(?:True)|(?:False)), protocol=venom.Protocols.JSONProtocol\)"
-            "([a-zA-Z]+) = venom\.Application\(.+"
+            "([a-zA-Z0-9]+) = venom\.Application\(.+"
             )
         match = \
             re.match(regex, line)
