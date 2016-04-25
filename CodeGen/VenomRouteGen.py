@@ -6,9 +6,6 @@ Generates route files given a collection of route objects
 '''
 
 
-# TODO: Don't check for imported apps
-# TODO: Model Attributes
-
 from collections import namedtuple, defaultdict
 import re
 import os
@@ -124,7 +121,6 @@ class VenomRouteGen(CodeGenerator.Generator):
 
                 self.file.append(line)
                 index += 1
-            # print(self.file)
 
     def write_route(self, route_obj, guid):
         route_name = route_obj["path"]
@@ -176,7 +172,6 @@ class VenomRouteGen(CodeGenerator.Generator):
             if item_type == "Model":
                 result += "{}".format(item["modelname"])
             elif item_type == "Dict":
-                # TODO: Check for empty attributes
                 result += "{{\n{}{}}}".format(self.parse_params(item["template"]), self.block())
                 if item_attributes:
                     result += ", "
@@ -226,11 +221,7 @@ class VenomRouteGen(CodeGenerator.Generator):
         return stripped_line[:9] == "venom.ui("
 
     def is_application(self, line):
-        regex = (
-            # "([a-zA-Z]+) = venom\.Application\(version=[0-9]+, "
-            # "debug=(?:(?:True)|(?:False)), protocol=venom.Protocols.JSONProtocol\)"
-            "([a-zA-Z0-9]+) = venom\.Application\(.+"
-            )
+        regex = "([a-zA-Z0-9]+) = venom\.Application\(.+"
         match = \
             re.match(regex, line)
         if not match:
@@ -239,7 +230,6 @@ class VenomRouteGen(CodeGenerator.Generator):
 
     def match_app_in_route(self, route):
         string = route[0].strip()
-        print(string)
         regex = "venom.ui\(\n([a-zA-Z0-9_]+)"
         match = re.match(regex, string)
         if not match:
