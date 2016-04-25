@@ -5,6 +5,10 @@ c Jimmy Yue
 Generates route files given a collection of route objects
 '''
 
+
+# TODO: Don't check for imported apps
+# TODO: Model Attributes
+
 from collections import namedtuple, defaultdict
 import re
 import os
@@ -125,7 +129,7 @@ class VenomRouteGen(CodeGenerator.Generator):
     def write_route(self, route_obj, guid):
         route_name = route_obj["path"]
         # TODO: Applications
-        current_app = "test_app"
+        current_app = "app"
         method = route_obj["method"]
         keys = set(route_obj.keys())
         # TODO: Handler Handling
@@ -133,14 +137,15 @@ class VenomRouteGen(CodeGenerator.Generator):
         self.import_handler(handler, route_obj["handlerFile"])
         new_route = Route(content="", index=None)
 
+        if self.apps:
+            current_app = self.apps[-1]
         if guid in self.routes:
             new_route = self.routes[guid]
+            current_app = self.match_app_in_route(self.routes[guid])
 
         route = "venom.ui(\n"
         # TODO: Apps
-        if not self.apps:
-            self.apps.append("NO_VALID_APP_FOUND")
-        route += "{}.{}('{}', {})".format(self.apps[-1], method, route_name, handler)
+        route += "{}.{}('{}', {})".format(current_app, method, route_name, handler)
 
         # Adding Options
         for key in keys:
@@ -168,7 +173,9 @@ class VenomRouteGen(CodeGenerator.Generator):
                 item_attributes = self.parse_attributes(item["attributes"])
 
             result += self.block() + "'{}': venom.Parameters.{}(".format(item_name, item_type)
-            if item_type == "Dict":
+            if item_type == "Model":
+                result += "{}".format(item["modelname"])
+            elif item_type == "Dict":
                 # TODO: Check for empty attributes
                 result += "{{\n{}{}}}".format(self.parse_params(item["template"]), self.block())
                 if item_attributes:
@@ -226,6 +233,14 @@ class VenomRouteGen(CodeGenerator.Generator):
             )
         match = \
             re.match(regex, line)
+        if not match:
+            return None
+        return match.groups()[0]
+
+    def match_app_in_route(self, line):
+        string = line.strip()
+        regex = "venom.ui\(([a-zA-Z0-9_]+)"
+        match = re.match(regex, string)
         if not match:
             return None
         return match.groups()[0]
