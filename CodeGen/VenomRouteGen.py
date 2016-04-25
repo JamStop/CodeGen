@@ -237,9 +237,10 @@ class VenomRouteGen(CodeGenerator.Generator):
             return None
         return match.groups()[0]
 
-    def match_app_in_route(self, line):
-        string = line.strip()
-        regex = "venom.ui\(([a-zA-Z0-9_]+)"
+    def match_app_in_route(self, route):
+        string = route[0].strip()
+        print(string)
+        regex = "venom.ui\(\n([a-zA-Z0-9_]+)"
         match = re.match(regex, string)
         if not match:
             return None
