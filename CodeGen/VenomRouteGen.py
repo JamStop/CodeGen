@@ -127,7 +127,7 @@ class VenomRouteGen(CodeGenerator.Generator):
         # TODO: Applications
         current_app = "app"
         method = route_obj["method"]
-        keys = set(route_obj.keys())
+        keys = list(set(route_obj.keys())).sorted()
         # TODO: Handler Handling
         handler = route_obj["handler"]
         self.import_handler(handler, route_obj["handlerFile"])
@@ -159,7 +159,7 @@ class VenomRouteGen(CodeGenerator.Generator):
     def parse_params(self, params):
         self.indent()
         result = ""
-        keys = list(params.keys())
+        keys = list(params.keys()).sorted()
         for i in range(len(keys)):
             item_name = keys[i]
             item = params[item_name]
@@ -184,7 +184,7 @@ class VenomRouteGen(CodeGenerator.Generator):
 
     def parse_attributes(self, attributes):
         result = ""
-        for key, value in attributes.items():
+        for key, value in attributes.items().sorted():
             if value is None or (key == "required" and value):
                 continue
 
