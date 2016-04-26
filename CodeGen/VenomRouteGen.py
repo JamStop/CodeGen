@@ -147,7 +147,7 @@ class VenomRouteGen(CodeGenerator.Generator):
         for key in keys:
             if key in {"url", "headers", "query"} and route_obj[key]:
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]) + "})"
-            elif key == "body" and route_obj["body"]:
+            elif key == "body" and route_obj["body"]["template"]:
                 # TODO: List functionalities with body
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
         if not route_obj["url"] and not route_obj["headers"] and not route_obj["query"] and not route_obj["body"]:
