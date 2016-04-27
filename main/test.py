@@ -33,9 +33,8 @@ app1.GET('/users/:id', UserHandler).body({
     'email': venom.Parameters.String(min=5),
     'file': venom.Parameters.Integer(min=1)
 }).url({
-    'agetype': venom.Parameters.String(choices=['adult', 'child'])
+    'agetype': venom.Parameters.String(choices=[u'adult', u'child'])
 }), 'ui-1234')
 
 venom.ui(
-app1.GET('/users/:id1', UserHandler)
-, 'ui-2345')
+app1.GET('/users/:id1', UserHandler), 'ui-2345')

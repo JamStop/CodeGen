@@ -9,7 +9,7 @@ Generates route files given a collection of route objects
 from collections import namedtuple, defaultdict
 import re
 import os
-from CodeGen import CodeGenerator
+import CodeGenerator
 
 
 Route = namedtuple('Route', 'content, index')

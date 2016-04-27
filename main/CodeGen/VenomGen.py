@@ -6,7 +6,7 @@ This class accepts the metaobject from the Venom IDE,
 and conducts the generation process.
 '''
 
-from CodeGen import VenomRouteGen
+import VenomRouteGen
 from sys import argv
 import json
 
