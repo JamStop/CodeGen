@@ -152,7 +152,7 @@ class VenomRouteGen(CodeGenerator.Generator):
                 route += ".{}({{\n".format(key) + self.parse_params(route_obj[key]["template"]) + "})"
         if not route_obj["url"] and not route_obj["headers"] and not route_obj["query"] and not route_obj["body"]:
             route += "\n"
-        if route[-2:] != "\n" or route[-2:] != "})":
+        if route[-2:] != "\n" and route[-2:] != "})":
             route += "\n"
         route += ", '{}')\n".format(guid)
         new_route = new_route._replace(content=route)
