@@ -1,26 +1,11 @@
 import venom
 
 
-app = venom.Application(version=1, debug=True, protocol=venom.Protocols.JSONProtocol)
-
-
-class Handler0(venom.RequestHandler):
-    def get(self):
-        import json
-        pass
-
-class Handler1(venom.RequestHandler):
-    def get(self):
-        pass
-
-
-
-test other
-
+kj;kjkj
 
 
 venom.ui(
-app1.GET('/users/:id', UserHandler).body({
+app.GET('/users/:id', UserHandler).body({
     'email': venom.Parameters.String(min=2, pattern='.*'),
     'file': venom.Parameters.Integer(min=0),
     'filename': venom.Parameters.String(characters='abcdefghijklmnop', max=100, min=3),
@@ -36,5 +21,9 @@ app1.GET('/users/:id', UserHandler).body({
     'agetype': venom.Parameters.String(choices=[u'adult', u'child'])
 }), 'ui-1234')
 
+
+ouhoihoih
+
+
 venom.ui(
-app1.GET('/users/:id1', UserHandler), 'ui-2345')
+app.GET('/users/:id1', UserHandler), 'ui-2345')

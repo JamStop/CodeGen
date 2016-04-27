@@ -7,7 +7,6 @@ and conducts the generation process.
 '''
 
 import VenomRouteGen
-from sys import argv
 import json
 
 
