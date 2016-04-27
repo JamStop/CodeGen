@@ -1,9 +1,6 @@
 import venom
 
 
-kj;kjkj
-
-
 venom.ui(
 app.GET('/users/:id', UserHandler).body({
     'email': venom.Parameters.String(min=2, pattern='.*'),
@@ -21,9 +18,6 @@ app.GET('/users/:id', UserHandler).body({
     'agetype': venom.Parameters.String(choices=[u'adult', u'child'])
 }), 'ui-1234')
 
-
-ouhoihoih
-
-
 venom.ui(
-app.GET('/users/:id1', UserHandler), 'ui-2345')
+app.GET('/users/:id1', UserHandler)
+, 'ui-2345')
